@@ -1,67 +1,88 @@
 # notification-service
 Microservicio para notificaciones por email 
 
-````md
-# Notification Service
 
-## 📝 Descripción
-Microservicio encargado del envío de notificaciones.  
-Generalmente usado para envío de emails o alertas internas.
+Notification Service  
+  
+Microservicio de notificaciones por email construido con Flask que soporta envío mediante SMTP y AWS SES.  
+  
+Descripción  
+Este servicio recibe solicitudes HTTP POST con datos de usuarios y envía notificaciones por email de forma asíncrona. Soporta dos métodos de envío:  
+  
+- SMTP: Para proveedores como Gmail [3](#1-2)   
+-  AWS SES: Para envío mediante Amazon Simple Email Service [4](#1-3)   
+  
+Requisitos del Sistema  
+  
+- Python: 3.9 
+- Sistema Operativo: Linux/macOS/Windows  
+- Memoria RAM: Mínimo 512MB  
+  
+Dependencias de Python  
+  El archivo `requirements.txt` contiene las siguientes dependencias: 
+  	Flask==2.3.3  
+Requests==2.31.0  
 
-## 🔔 Funcionalidades principales
-- Envío de notificaciones por email  
-- Manejo de plantillas  
-- Recepción de solicitudes desde otros microservicios  
+Instalación
+Paso 1: Clonar el Repositorio
+git clone https://github.com/infraestructura-2025/notification-service.git  
+cd notification-service
 
-## 🧰 Tecnologías
-- Python  
-- Framework ligero (Flask / FastAPI / Django)  
-- SMTP o proveedor de correos externo
+Paso 2: Crear Entorno Virtual (Recomendado)
+Crear entorno virtual  
+python3.9 -m venv venv  
+ Activar entorno virtual 
+En Linux/macOS:  
+source venv/bin/activate  
+En Windows: 
+venv\Scripts\activate
 
-## ▶️ Ejecutar localmente
-
-### 1. Crear entorno
-```bash
-python -m venv venv
-source venv/bin/activate
-```
-
-### 2. Instalar dependencias
-```bash
+Paso 3: Instalar Dependencias
+Actualizar pip  
+python -m pip install --upgrade pip  
+  
+Instalar dependencias desde requirements.txt 
 pip install -r requirements.txt
-```
 
-### 3. Configurar variables
-Archivo `.env` (ejemplo):
+El servicio se configura mediante variables de entorno:
+Ejemplo de Configuración:
+Crear un archivo .env (no incluir en git):
+Configuración SMTP (Gmail) 
+USE_SES=false  
+SMTP_HOST=smtp.gmail.com  
+SMTP_PORT=587  
+SMTP_USER=tu-email@gmail.com  
+SMTP_PASS=tu-contraseña-app  
+SES_DEST_EMAIL=destinatario@example.com  
+  
+Configuración del servidor: 
+PORT=5000  
+FLASK_DEBUG=false  
+SEND_SYNC=false
 
-```
-SMTP_SERVER=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USERNAME=usuario
-SMTP_PASSWORD=clave
-FROM_EMAIL=notificaciones@infraestructura.com
-```
 
-### 4. Ejecutar servicio
-```bash
-python main.py
-```
+Ejecución Local: python app.py
 
-## 📡 Endpoints
-Documentar aquí los endpoints cuando estén definidos.
+Ejemplos de Uso
+curl http://localhost:5000/health  
+  	Enviar notificación 
+curl -X POST http://localhost:5000/notify \  
+  -H "Content-Type: application/json" \  
+  -d '{  
+    "name": "Juan Pérez",  
+    "email": "juan@example.com",  
+    "phone": "123456789",  
+    "created_at": "2025-11-20"  
+  }'
 
-## 🐳 Docker
-```bash
-docker build -t notification-service .
-docker run -p 5000:5000 notification-service
-```
+Arquitectura
+El servicio utiliza:
+Flask: Framework web ligero app.py:16
+Threading: Para envío asíncrono de emails app.py:146-148
+Logging: Sistema de logs estructurado app.py:18-20
+SMTP/SES: Dos métodos de envío de email intercambiables app.py:23
 
-## ☁️ Deploy
-Listo para desplegar en Kubernetes o EKS.
-
-## 🤝 Contribución
-Proceso estándar de PRs.
-
-## 📄 Licencia
-MIT.
-````
+CI/CD
+El repositorio incluye integración con SonarCloud para análisis de calidad de código. sonarcloud.yml:1-6 El workflow se ejecuta automáticamente en:
+Push a ramas main o master
+Pull requests hacia main o master
